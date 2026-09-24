@@ -1423,15 +1423,11 @@ func handleOpenCodeConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cfg := getZenConfig()
-	maskedProxies := make([]string, 0, len(cfg.Proxies))
-	for _, p := range cfg.Proxies {
-		maskedProxies = append(maskedProxies, maskProxyURL(p))
-	}
 	writeAPI(w, http.StatusOK, apiResponse{Success: true, Data: map[string]any{
 		"enabled":         cfg.Enabled,
 		"key":             cfg.Key,
 		"baseURL":         cfg.BaseURL,
-		"proxies":         maskedProxies,
+		"proxies":         cfg.Proxies,
 		"proxyStrategy":   cfg.ProxyStrategy,
 		"proxyCooldowns":  zenProxyCooldownStatus(),
 		"maxConcurrency":  cfg.MaxConcurrency,
