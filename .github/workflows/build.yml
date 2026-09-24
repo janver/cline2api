@@ -32,7 +32,8 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.25'
-          cache: true
+          # 仅打 tag / 手动触发，频率极低，go.sum 缓存几乎命中不了，关掉省 Actions 存储
+          cache: false
 
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
@@ -55,6 +56,8 @@ jobs:
         with:
           name: ${{ matrix.artifact }}
           path: ${{ matrix.artifact }}
+          # 产物只需撑到 release 步骤下载，不必吃仓库默认 90 天保留期
+          retention-days: 7
 
   release:
     name: Release
