@@ -1575,19 +1575,17 @@ func handleOpenCodeConfigUpdate(w http.ResponseWriter, r *http.Request) {
 	writeAPI(w, http.StatusOK, apiResponse{Success: true, Message: tAPI(r, "opencode_config_saved")})
 }
 
-// GET /admin/api/cline-proxy/config — Cline 出口代理配置（代理地址脱敏返回）
+// GET /admin/api/cline-proxy/config — Cline 出口代理配置
+// proxies 必须返回明文，不能用 maskProxyURL 脱敏：管理页把它填进可编辑 textarea
+// 并原样回传，后端整体覆盖后真实凭据就被 "***" 永久破坏（同 handleOpenCodeConfig）。
 func handleClineProxyConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		writeAPI(w, http.StatusMethodNotAllowed, apiResponse{Error: tAPI(r, "method_not_allowed")})
 		return
 	}
 	cfg := getClineProxyConfig()
-	maskedProxies := make([]string, 0, len(cfg.Proxies))
-	for _, p := range cfg.Proxies {
-		maskedProxies = append(maskedProxies, maskProxyURL(p))
-	}
 	writeAPI(w, http.StatusOK, apiResponse{Success: true, Data: map[string]any{
-		"proxies":       maskedProxies,
+		"proxies":       cfg.Proxies,
 		"proxyStrategy": cfg.ProxyStrategy,
 	}})
 }
